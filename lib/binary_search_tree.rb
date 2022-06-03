@@ -105,6 +105,57 @@ class Tree
     return queue.map(&:data) unless block_given?
   end
 
+  def inorder(&block)
+    stack = []
+    seen = []
+    curr = root
+    until stack.empty? && curr.nil?
+      until curr.nil?
+        stack << curr
+        curr = curr.left
+      end
+      next if stack.empty?
+
+      curr = stack.pop
+      block.call(curr) if block_given?
+      seen << curr
+      curr = curr.right
+    end
+    return seen.map(&:data) unless block_given?
+  end
+
+  def preorder(&block)
+    stack = []
+    seen = []
+    stack << root
+    until stack.empty?
+      curr = stack.pop
+      if seen.none?(curr)
+        seen << curr
+        block.call(curr) if block_given?
+      end
+      stack << curr.right if curr.right && seen.none?(curr.right)
+      stack << curr.left if curr.left && seen.none?(curr.left)
+    end
+    return seen.map(&:data) unless block_given?
+  end
+
+  def postorder(&block)
+    stack = []
+    seen = []
+    stack << root
+    until stack.empty?
+      curr = stack.pop
+      if seen.none?(curr)
+        seen << curr
+        block.call(curr) if block_given?
+      end
+      stack << curr.left if curr.left && seen.none?(curr.left)
+      stack << curr.right if curr.right && seen.none?(curr.right)
+    end
+    return seen.map(&:data) unless block_given?
+  end
+
   def to_s
     pretty_print
   end
@@ -141,5 +192,7 @@ tree.delete(12)
 puts "Deleted 12"
 puts tree
 
-tree.level_order{ |node| puts node }
 p tree.level_order
+p tree.inorder
+p tree.preorder
+p tree.postorder
