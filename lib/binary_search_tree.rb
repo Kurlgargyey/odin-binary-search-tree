@@ -78,7 +78,6 @@ class Tree
     else
       node.left = delete(value, node.left)
     end
-
     node
   end
 
@@ -91,9 +90,19 @@ class Tree
                temp.left
              end
     end
-    return nil if temp.nil?
-
     temp
+  end
+
+  def level_order(&block)
+    queue = [@root]
+
+    queue.each do |node|
+      block.call(node) if block_given?
+      queue << node.left if node.left
+      queue << node.right if node.right
+    end
+
+    return queue.map(&:data) unless block_given?
   end
 
   def to_s
@@ -131,3 +140,6 @@ puts tree
 tree.delete(12)
 puts "Deleted 12"
 puts tree
+
+tree.level_order{ |node| puts node }
+p tree.level_order
