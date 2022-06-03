@@ -14,6 +14,10 @@ class Node
   def <=>(other)
     data <=> other.data
   end
+
+  def to_s
+    "#{data.to_s}\n"
+  end
 end
 
 class Tree
@@ -27,16 +31,13 @@ class Tree
     return if data.nil?
 
     node = Node.new(data)
-    puts "Node data: #{node.data}"
     if root.nil?
-      puts "Assigning new root: #{node}"
       @root = node
       return
     end
 
     prev = nil
     temp = root
-    puts "Temp data: #{temp.data}"
     until temp.nil?
       if node > temp
         prev = temp
@@ -56,7 +57,46 @@ class Tree
     root
   end
 
-  def to_s(node = @root)
+  def delete(value, node = @root)
+    return nil if node.nil?
+
+    if node.data == value
+      if node.left && node.right
+        curr = node.right
+        curr = curr.left while curr.left
+        node.data = curr.data
+        node.right = delete(node.data, node.right)
+      elsif node.right
+        return node.right
+      elsif node.left
+        return node.left
+      else
+        return nil
+      end
+    elsif value > node.data
+      node.right = delete(value, node.right)
+    else
+      node.left = delete(value, node.left)
+    end
+
+    node
+  end
+
+  def find(value)
+    temp = root
+    until temp.nil? || temp.data == value
+      temp = if value > temp.data
+               temp.right
+             else
+               temp.left
+             end
+    end
+    return nil if temp.nil?
+
+    temp
+  end
+
+  def to_s
     pretty_print
   end
 
@@ -72,14 +112,22 @@ class Tree
     return root if startpoint > endpoint
 
     mid = (startpoint + endpoint) / 2
-    puts "Inserting #{arr[mid]}"
     insert(arr[mid])
     build_tree(arr, startpoint, mid - 1)
     build_tree(arr, mid + 1, endpoint)
   end
 end
 
-array = [0, 523, 5, 8, 11, 60, 9]
+array = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
 tree = Tree.new(array)
+p array
+puts tree
+puts tree.find(9)
 
+tree.delete(13)
+puts "Deleted 13"
+puts tree
+
+tree.delete(12)
+puts "Deleted 12"
 puts tree
