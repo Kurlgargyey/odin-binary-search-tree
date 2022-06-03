@@ -12,11 +12,13 @@ class Node
   end
 
   def <=>(other)
+    return nil unless other.is_a?(Node)
+
     data <=> other.data
   end
 
   def to_s
-    "#{data.to_s}\n"
+    "#{data.to_s}"
   end
 end
 
@@ -143,15 +145,25 @@ class Tree
   def postorder(&block)
     stack = []
     seen = []
-    stack << root
-    until stack.empty?
-      curr = stack.pop
-      if seen.none?(curr)
-        seen << curr
-        block.call(curr) if block_given?
+    curr = root
+    prev = root
+    loop do
+      until curr.nil?
+        stack << curr
+        curr = curr.left
       end
-      stack << curr.left if curr.left && seen.none?(curr.left)
-      stack << curr.right if curr.right && seen.none?(curr.right)
+      while curr.nil? && !stack.empty?
+        curr = stack[-1]
+        if curr.right.nil? || curr.right == prev
+          block.call(curr) if block_given?
+          seen << curr
+          prev = curr
+          curr = nil
+        else
+          curr = curr.right
+        end
+      end
+      break if stack.empty?
     end
     return seen.map(&:data) unless block_given?
   end
