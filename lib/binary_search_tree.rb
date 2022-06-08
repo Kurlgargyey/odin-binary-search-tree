@@ -152,7 +152,6 @@ class Tree
       until curr.nil?
         stack << curr
         curr = curr.left
-        p stack.map(&:data)
       end
       while curr.nil? && !stack.empty?
         curr = stack[-1]
@@ -160,7 +159,6 @@ class Tree
           block.call(curr) if block_given?
           seen << curr
           stack.pop
-          p seen.map(&:data)
           prev = curr
           curr = nil
         else
@@ -171,6 +169,29 @@ class Tree
     end
 
     return seen.map(&:data) unless block_given?
+  end
+
+  def height(node)
+    return -1 if node.nil?
+
+    # the base case is built into these two conditional assignments, because
+    # neither will call #height again if there are no child nodes.
+
+    left_height = height(node.left) + 1
+    right_height = height(node.right) + 1
+
+    left_height > right_height ? left_height : right_height
+  end
+
+  def depth(node)
+    height(@root) - height(node)
+  end
+
+  def balanced?
+    preorder do |node|
+      return false if (height(node.left) - height(node.right)).abs > 1
+    end
+    true
   end
 
   def to_s
@@ -213,3 +234,24 @@ p tree.level_order
 p tree.inorder
 p tree.preorder
 p tree.postorder
+p tree.height(tree.find(7))
+p tree.height(tree.find(3))
+p tree.depth(tree.find(7))
+p tree.depth(tree.find(4))
+p tree.balanced?
+
+tree.delete(11)
+puts "Deleted 11"
+puts tree
+p tree.balanced?
+
+tree.delete(9)
+puts "Deleted 9"
+puts tree
+p tree.balanced?
+
+tree.delete(8)
+puts "Deleted 8"
+puts tree
+
+p tree.balanced?
