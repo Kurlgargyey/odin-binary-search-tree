@@ -194,6 +194,13 @@ class Tree
     true
   end
 
+  def rebalance
+    array = inorder
+    @root = nil
+    @root = build_tree(array, 0, array.length - 1)
+    self
+  end
+
   def to_s
     pretty_print
   end
@@ -255,3 +262,5 @@ puts "Deleted 8"
 puts tree
 
 p tree.balanced?
+puts "Rebalancing..."
+puts tree.rebalance
