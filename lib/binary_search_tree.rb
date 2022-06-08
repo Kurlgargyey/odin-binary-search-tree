@@ -147,16 +147,20 @@ class Tree
     seen = []
     curr = root
     prev = root
+
     loop do
       until curr.nil?
         stack << curr
         curr = curr.left
+        p stack.map(&:data)
       end
       while curr.nil? && !stack.empty?
         curr = stack[-1]
         if curr.right.nil? || curr.right == prev
           block.call(curr) if block_given?
           seen << curr
+          stack.pop
+          p seen.map(&:data)
           prev = curr
           curr = nil
         else
@@ -165,6 +169,7 @@ class Tree
       end
       break if stack.empty?
     end
+
     return seen.map(&:data) unless block_given?
   end
 
