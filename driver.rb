@@ -35,3 +35,9 @@ puts 'Postorder:'
 p tree.postorder
 puts 'Inorder:'
 p tree.inorder
+
+(101..110).each { |i| tree.delete(i) }
+
+puts tree
+puts 'Balanced?'
+puts tree.balanced?

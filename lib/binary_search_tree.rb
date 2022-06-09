@@ -66,8 +66,9 @@ class Tree
     return nil if node.nil?
 
     if node.data == value
-      # if there are two children, the method finds the closest successor (leftmost element of the left subtree of the right child),
-      # overwrites the target node's data with the successor data, and then deletes the successor
+      # if there are two children, the method finds the closest successor (leftmost element of the
+      # left subtree of the right child), overwrites the target node's data with the successor data,
+      # and then deletes the successor
       if node.left && node.right
         successor = node.right
         successor = successor.left while successor.left
