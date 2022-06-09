@@ -18,7 +18,7 @@ class Node
   end
 
   def to_s
-    "#{data.to_s}"
+    data.to_s
   end
 end
 
@@ -33,6 +33,7 @@ class Tree
     return if data.nil?
 
     node = Node.new(data)
+
     if root.nil?
       @root = node
       return
@@ -40,11 +41,13 @@ class Tree
 
     prev = nil
     temp = root
+
+    # this loop finds the correct parent node for the inserted value and saves it to prev
     until temp.nil?
-      if node > temp
+      if node > temp # if the inserted value is greater, look to the right
         prev = temp
         temp = temp.right
-      else
+      else # if the inserted value is lesser, look to the left
         prev = temp
         temp = temp.left
       end
@@ -63,17 +66,19 @@ class Tree
     return nil if node.nil?
 
     if node.data == value
+      # if there are two children, the method finds the closest successor (leftmost element of the left subtree of the right child),
+      # overwrites the target node's data with the successor data, and then deletes the successor
       if node.left && node.right
-        curr = node.right
-        curr = curr.left while curr.left
-        node.data = curr.data
-        node.right = delete(node.data, node.right)
+        successor = node.right
+        successor = successor.left while successor.left
+        node.data = successor.data
+        node.right = delete(successor.data, node.right)
       elsif node.right
-        return node.right
+        return node.right # replaces the node with its right child if it has one
       elsif node.left
-        return node.left
+        return node.left # replaces the node with its left child if it has one
       else
-        return nil
+        return nil # deletes the node if it has no children
       end
     elsif value > node.data
       node.right = delete(value, node.right)
@@ -112,12 +117,13 @@ class Tree
     seen = []
     curr = root
     until stack.empty? && curr.nil?
+      # stack up all left children
       until curr.nil?
         stack << curr
         curr = curr.left
       end
-      next if stack.empty?
 
+      # visit the node, then stack its right child and go again
       curr = stack.pop
       block.call(curr) if block_given?
       seen << curr
@@ -127,15 +133,13 @@ class Tree
   end
 
   def preorder(&block)
-    stack = []
+    stack = [root] # start with root on the stack because we wanna pop at the start of each loop
     seen = []
-    stack << root
     until stack.empty?
       curr = stack.pop
-      if seen.none?(curr)
-        seen << curr
-        block.call(curr) if block_given?
-      end
+      seen << curr
+      block.call(curr) if block_given?
+      # stack up right first here so that it gets popped last
       stack << curr.right if curr.right && seen.none?(curr.right)
       stack << curr.left if curr.left && seen.none?(curr.left)
     end
@@ -146,7 +150,7 @@ class Tree
     stack = []
     seen = []
     curr = root
-    prev = root
+    prev = root # keep track of previously visited node so we know when a node's right child has just been visited
 
     loop do
       until curr.nil?
@@ -155,7 +159,7 @@ class Tree
       end
       while curr.nil? && !stack.empty?
         curr = stack[-1]
-        if curr.right.nil? || curr.right == prev
+        if curr.right.nil? || curr.right == prev # we only visit a node once we are done with it's right child
           block.call(curr) if block_given?
           seen << curr
           stack.pop
@@ -172,15 +176,12 @@ class Tree
   end
 
   def height(node)
-    return -1 if node.nil?
-
-    # the base case is built into these two conditional assignments, because
-    # neither will call #height again if there are no child nodes.
+    return -1 if node.nil? # this returns -1 so that a node with two nil children will have a height of 0 (-1 + 1)
 
     left_height = height(node.left) + 1
     right_height = height(node.right) + 1
 
-    left_height > right_height ? left_height : right_height
+    left_height > right_height ? left_height : right_height # pick tallest subtree to return
   end
 
   def depth(node)
@@ -195,7 +196,7 @@ class Tree
   end
 
   def rebalance
-    array = inorder
+    array = inorder # grab the array with #inorder so it's already sorted
     @root = nil
     @root = build_tree(array, 0, array.length - 1)
     self
